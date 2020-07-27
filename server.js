@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.route("/").get((req, res) => {
   //Change the response to render the Pug template
-  res.render(process.cwd()+'/views/pug/index', {title: 'Hello', message: 'Please login'}); //process.cwd() returns the direct
+  res.render(process.cwd()+'/views/pug/index', {title: 'Hello', message: 'Please login'}); //process.cwd() returns the directory of the current node process
 });
 
 app.listen(process.env.PORT || 3000, () => {
