@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.route("/").get((req, res) => {
   //Change the response to render the Pug template
-  res.render('/views/pug/index.pug');
+  res.render('index.pug');
 });
 
 app.listen(process.env.PORT || 3000, () => {
