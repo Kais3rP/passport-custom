@@ -6,8 +6,8 @@ const fccTesting = require("./freeCodeCamp/fcctesting.js");
 const app = express();
 
 app.set('view engine', 'pug'); //Sets pug as template engine
-
 fccTesting(app); //For FCC testing purposes
+
 app.use("/public", express.static(process.cwd() + "/public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
