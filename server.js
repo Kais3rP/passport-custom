@@ -7,6 +7,8 @@ const app = express();
 const passport = require('passport');
 const session = require('express-session');
 
+const mongoose = require('mongoose');
+const mongo = require('mongodb').MongoClient; // This connects to mongodb databse at every session
 const db = require('mongodb');
 
 app.set('view engine', 'pug'); //Sets pug as template engine
@@ -27,15 +29,21 @@ app.use(session({
 }));
 
 //----- using Passport to manage logins credentials -----
-
+console.log(db.collection);
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(passport.serializeuser((user,done) => {
+
+passport.serializeUser((user,done) => {
   done(null, user._id);
-}))
-app.use(passport.deserializeUser((id,done) => {
-  
-}))
+})
+passport.deserializeUser((id,done) => {
+  /* db.collection('users').findOne(
+    {_id: new ObjectID(id)},
+      (err, doc) => {
+        done(null, doc);
+      }*/
+  done(null, null);
+})
 app.route("/").get((req, res) => {  //rendering of templates
   //Change the response to render the Pug template
   res.render(process.cwd()+'/views/pug/index', {title: 'Hello', message: 'Please login'}); //process.cwd() returns the directory of the current node process
