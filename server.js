@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));// body parsing
 
 //----- using the express-session() middleware to save on cookies the token of the visitor and verify it with the secret key on server, similar to JWT----
-
+//session() has to be used before passport.session() middleware to restore the correct login  order
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: true,
