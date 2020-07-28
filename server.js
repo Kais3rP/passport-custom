@@ -1,5 +1,5 @@
 "use strict";
-
+//In this exercise we won't be using mongoose, but pure mongodb API
 const express = require("express");
 const fccTesting = require("./freeCodeCamp/fcctesting.js");
 
@@ -7,9 +7,9 @@ const app = express();
 const passport = require('passport');
 const session = require('express-session');
 
-const mongoose = require('mongoose');
-const mongo = require('mongodb').MongoClient; // This connects to mongodb databse at every session
-const db = require('mongodb');
+
+const mongo = require('mongodb').MongoClient; // This connects to mongodb 
+
 
 app.set('view engine', 'pug'); //Sets pug as template engine
 fccTesting(app); //For FCC testing purposes
@@ -29,21 +29,32 @@ app.use(session({
 }));
 
 //----- using Passport to manage logins credentials -----
-console.log(db.collection);
+
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.serializeUser((user,done) => {
+//Using mongo db api, all the operations yo uwant to do in db you have to inside the callback of mongo.connect(MONGO_URI, cb(err,db))
+mongo.connect(process.env.MONGO_URI, (err, db) => {     
+  if(err) {
+    console.log('Database error: ' + err);
+  } else {
+    console.log('Successful database connection');
+
+   passport.serializeUser((user,done) => {
   done(null, user._id);
 })
 passport.deserializeUser((id,done) => {
-  /* db.collection('users').findOne(
+   db.collection('users').findOne(
     {_id: new ObjectID(id)},
       (err, doc) => {
         done(null, doc);
-      }*/
-  done(null, null);
+      })
+  
 })
+  }
+});
+
+
 app.route("/").get((req, res) => {  //rendering of templates
   //Change the response to render the Pug template
   res.render(process.cwd()+'/views/pug/index', {title: 'Hello', message: 'Please login'}); //process.cwd() returns the directory of the current node process
