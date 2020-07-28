@@ -9,7 +9,7 @@ const session = require('express-session');
 
 
 const mongo = require('mongodb').MongoClient; // This connects to mongodb 
-
+const ObjectID = mongo.ObjectID;
 
 app.set('view engine', 'pug'); //Sets pug as template engine
 fccTesting(app); //For FCC testing purposes
@@ -34,7 +34,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //Using mongo db api, all the operations yo uwant to do in db you have to inside the callback of mongo.connect(MONGO_URI, cb(err,db))
-mongo.connect(process.env.MONGO_URI, (err, db) => {     
+mongo.connect(process.env.MONGO_URI, { useUnifiedTopology: true }, (err, db) => {     
   if(err) {
     console.log('Database error: ' + err);
   } else {
@@ -44,6 +44,7 @@ mongo.connect(process.env.MONGO_URI, (err, db) => {
   done(null, user._id);
 })
 passport.deserializeUser((id,done) => {
+  console.log(db);
    db.collection('users').findOne(
     {_id: new ObjectID(id)},
       (err, doc) => {
