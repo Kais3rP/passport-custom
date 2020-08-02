@@ -71,7 +71,7 @@ passport.deserializeUser((id,done) => {
 
 app.route("/").get((req, res) => {  //rendering of templates
   //Change the response to render the Pug template
-  res.render(process.cwd()+'/views/pug/index', {title: 'Hello', message: 'Please login'}); //process.cwd() returns the directory of the current node process
+  res.render(process.cwd()+'/views/pug/index', {title: 'Hello', message: 'Please login', showLogin: true}); //process.cwd() returns the directory of the current node process
 });
 
 app.listen(process.env.PORT || 3000, () => {
