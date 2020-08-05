@@ -74,6 +74,10 @@ app.route("/").get((req, res) => {  //rendering of templates
   res.render(process.cwd()+'/views/pug/index', {title: 'Hello', message: 'Please login', showLogin: true}); //process.cwd() returns the directory of the current node process
 });
 
+app.post('/login', passport.authenticate('local', { successRedirect: '/profile',
+                                   failureRedirect: '/login' }), function(req,res){
+  
+})
 app.listen(process.env.PORT || 3000, () => {
   console.log("Listening on port " + process.env.PORT);
 });
