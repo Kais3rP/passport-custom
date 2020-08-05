@@ -34,7 +34,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-//Using mongo db api, all the operations yo uwant to do in db you have to inside the callback of mongo.connect(MONGO_URI, cb(err,db))
+//Using mongo db api, all the operations you want to do in db you have to inside the callback of mongo.connect(MONGO_URI, cb(err,db))
 mongo.connect(process.env.MONGO_URI, { useUnifiedTopology: true }, (err, db) => {     
   if(err) {
     console.log('Database error: ' + err);
