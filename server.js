@@ -5,8 +5,8 @@ const fccTesting = require("./freeCodeCamp/fcctesting.js");
 
 const app = express();
 const passport = require('passport');
-const session = require('express-session');
 const LocalStrategy = require('passport-local');
+const session = require('express-session');
 
 
 const mongo = require('mongodb').MongoClient; // This connects to mongodb 
