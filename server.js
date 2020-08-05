@@ -35,12 +35,24 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //Using mongo db api, all the operations you want to do in db you have to inside the callback of mongo.connect(MONGO_URI, cb(err,db))
-mongo.connect(process.env.MONGO_URI, { useUnifiedTopology: true }, (err, db) => {     
-  if(err) {
-    console.log('Database error: ' + err);
-  } else {
-    console.log('Successful database connection');
-//-----Here we manage the strategy of authentication---------------
+mongo.connect(process.env.MONGO_URI, { useUnifiedTopology: true }, (err, client) => {  
+  var db = client.db;
+  if(err) throw ('Database error: ' + err);
+  console.log('Successful database connection');
+
+   passport.serializeUser((user,done) => {
+  done(null, user._id);
+})
+passport.deserializeUser((id,done) => {
+  console.log(client);
+   db.collection('users').findOne(
+    {_id: new ObjectID(id)},
+      (err, doc) => {
+        done(null, doc);
+      })
+    });
+    
+    //-----Here we manage the strategy of authentication---------------
 
     passport.use(new LocalStrategy(
       function(username, password, done) {
@@ -54,19 +66,8 @@ mongo.connect(process.env.MONGO_URI, { useUnifiedTopology: true }, (err, db) => 
       }
     ));
 //---------------------o--------------------------
-   passport.serializeUser((user,done) => {
-  done(null, user._id);
-})
-passport.deserializeUser((id,done) => {
-  console.log(db);
-   db.collection('users').findOne(
-    {_id: new ObjectID(id)},
-      (err, doc) => {
-        done(null, doc);
-      })
-    })
-  }
-});
+    
+
 
 
 app.route("/").get((req, res) => {  //rendering of templates
@@ -85,3 +86,6 @@ app.listen(process.env.PORT || 3000, () => {
 function done (err, data){
   console.log(err ? err : data)
 }
+    
+      
+});
