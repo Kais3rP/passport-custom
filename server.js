@@ -75,7 +75,7 @@ app.route("/").get((req, res) => {  //rendering of templates
 });
 
 app.post('/login', passport.authenticate('local', { successRedirect: '/profile',
-                                   failureRedirect: '/login' }), function(req,res){
+                                   failureRedirect: '/' }), function(req,res){
   
 })
 app.listen(process.env.PORT || 3000, () => {
