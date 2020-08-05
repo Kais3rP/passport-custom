@@ -36,7 +36,7 @@ app.use(passport.session());
 
 //Using mongo db api, all the operations you want to do in db you have to inside the callback of mongo.connect(MONGO_URI, cb(err,db))
 mongo.connect(process.env.MONGO_URI, { useUnifiedTopology: true }, (err, client) => {  
-  var db = client.db;
+  var db = client.db('users-db'); //In MongoDB 3+ you need to declare db like this
   if(err) throw ('Database error: ' + err);
   console.log('Successful database connection');
 
@@ -58,9 +58,10 @@ passport.deserializeUser((id,done) => {
       function(username, password, done) {
         db.collection('users').findOne({ username: username }, function (err, user) {
           console.log('User '+ username +' attempted to log in.');
+          console.log(user)
           if (err) { return done(err); }
           if (!user) { return done(null, false); }
-          if (password !== user.password) { return done(null, false); }
+          if (password !== user.password) { return done(null, "Password wrong"); }
           return done(null, user);
         });
       }
@@ -83,9 +84,6 @@ app.listen(process.env.PORT || 3000, () => {
   console.log("Listening on port " + process.env.PORT);
 });
 
-function done (err, data){
-  console.log(err ? err : data)
-}
     
       
 });
