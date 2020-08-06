@@ -9,8 +9,9 @@ const LocalStrategy = require('passport-local');
 const session = require('express-session');
 
 
-const mongo = require('mongodb').MongoClient; // This connects to mongodb 
-const ObjectID = mongo.ObjectID;
+const mongoDb = require('mongodb');
+const mongo = mongoDb.MongoClient;// This connects to mongodb 
+const ObjectId = mongoDb.ObjectID;
 
 app.set('view engine', 'pug'); //Sets pug as template engine
 fccTesting(app); //For FCC testing purposes
@@ -46,7 +47,7 @@ mongo.connect(process.env.MONGO_URI, { useUnifiedTopology: true }, (err, client)
 })
   passport.deserializeUser((id,done) => {
    db.collection('users').findOne(
-    {_id: new ObjectID(id)},
+    {_id: new ObjectId(id)},
       (err, doc) => {
         done(null, doc);
       })
@@ -80,7 +81,7 @@ app.route("/").get((req, res) => {
 app.route('/register').post(async (req,res)=>{
   try {
   let user = await db.collection('users').findOne({username: req.body.username});
-    console.log(user)
+   
     if (user) return res.redirect('/')
     //If user doesn't exist we create one
     let userDb = await db.collection('users').insertOne({
