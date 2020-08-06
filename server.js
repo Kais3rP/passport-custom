@@ -15,6 +15,9 @@ const ObjectId = mongoDb.ObjectID;
 
 const bcrypt = require ('bcrypt');
 
+const routes = require ('./routes.js');
+const auth = require ('./auth.js');
+
 app.set('view engine', 'pug'); //Sets pug as template engine
 fccTesting(app); //For FCC testing purposes
 
@@ -43,7 +46,7 @@ mongo.connect(process.env.MONGO_URI, { useUnifiedTopology: true }, (err, client)
   if(err) throw ('Database error: ' + err);
   console.log('Successful database connection');
   
-/* serialize and deserialize the user are intialized so they are called during registration or login to write/read the id on client cookie req.user*/
+/* serialize and deserialize are intialized so they are called during registration or login to write/read the id on client cookie req.user*/
   passport.serializeUser((user,done) => {
   done(null, user._id);
 })
@@ -60,10 +63,11 @@ mongo.connect(process.env.MONGO_URI, { useUnifiedTopology: true }, (err, client)
     passport.use(new LocalStrategy(
   async function(username, password, done) {
     try {
-   let user = db.collection('users').findOne({ username: username });
+   let user = await db.collection('users').findOne({ username: username });
           console.log('User '+ username +' attempted to log in.');
+     
           if (!user) { console.log('User non registered');return done(null, false); }
-         let passwordIsValid = bcrypt.compareSync(password, user.password);
+         let passwordIsValid = await bcrypt.compareSync(password, user.password);
          if (!passwordIsValid) { console.log('Wrong Password'); return done(null, false);} //password wrong { return done(null, false); }
           return done(null, user); } catch {
             return done(err)
@@ -73,50 +77,8 @@ mongo.connect(process.env.MONGO_URI, { useUnifiedTopology: true }, (err, client)
                  );
     
 //---------------------o--------------------------
-    
-/* Starting the routes */
 
-//Main route
-app.route("/").get((req, res) => {  
-  //Rendering of templates
-  //Change the response to render the Pug template
-  console.log(req.user)
-  res.render(process.cwd()+'/views/pug/index', {title: 'Home Page', message: 'Please login', showLogin: true, showRegistration: true}); //process.cwd() returns the directory of the current node process
-});
-
-app.route('/register').post(async (req,res)=>{
-  try {
-  let user = await db.collection('users').findOne({username: req.body.username});
-   if (user) return res.redirect('/')
-    //If user doesn't exist we create one
-    let hashedPwd = bcrypt.hashSync(req.body.password, 8); //crpyting pwd
-    let userDb = await db.collection('users').insertOne({
-          username: req.body.username,
-          password: hashedPwd
-        });
-    console.log(userDb)
-    let autenthicate = await passport.authenticate('local', { failureRedirect: '/' });
-    res.redirect('/profile')
-  } catch {
-    console.log("Error retrieving/creating user from the db")
-    return res.redirect('/')
-  }
-})
-  
-  //Login route when trying to login
-app.route('/login').post(passport.authenticate('local', { failureRedirect: '/' }), (req,res) =>{
-  res.redirect("/profile");
-});
-  
-  //Profile route when login succedeed
-  app.route('/profile').get(ensureAuthenticated, (req,res) => {
-   res.render(process.cwd() + '/views/pug/profile', { username: req.user.username });
-});
-  
-  app.route('/logout').get((req,res)=>{
-    req.logout(); //This method is directly managed by passport
-    res.redirect('/');
-  })
+  routes(app,)
 
 //Server listening
 app.listen(process.env.PORT || 3000, () => {
