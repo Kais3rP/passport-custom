@@ -44,8 +44,7 @@ mongo.connect(process.env.MONGO_URI, { useUnifiedTopology: true }, (err, client)
   passport.serializeUser((user,done) => {
   done(null, user._id);
 })
-passport.deserializeUser((id,done) => {
-  console.log(client);
+  passport.deserializeUser((id,done) => {
    db.collection('users').findOne(
     {_id: new ObjectID(id)},
       (err, doc) => {
@@ -61,7 +60,7 @@ passport.deserializeUser((id,done) => {
           console.log('User '+ username +' attempted to log in.');
           if (err) { return done(err); }
           if (!user) { return done(null, false); }
-          if (password !== user.password) { return done(null, "Password wrong"); }
+          if (password !== user.password) { return done(null, false); }
           return done(null, user);
         });
       }
@@ -72,8 +71,9 @@ passport.deserializeUser((id,done) => {
 
 //Main route
 app.route("/").get((req, res) => {  
-  //rendering of templates
+  //Rendering of templates
   //Change the response to render the Pug template
+  console.log(req.user)
   res.render(process.cwd()+'/views/pug/index', {title: 'Home Page', message: 'Please login', showLogin: true}); //process.cwd() returns the directory of the current node process
 });
 
@@ -88,19 +88,17 @@ app.route('/login').post(passport.authenticate('local', { failureRedirect: '/' }
 });
   
 
-  
+//Server listening
 app.listen(process.env.PORT || 3000, () => {
   console.log("Listening on port " + process.env.PORT);
 });
 
     
-    /* This middleware ensures that the request is authenticated before redirecting to /profile route
-
- */  function ensureAuthenticated(req, res, next) {
+/* This middleware ensures that the request is authenticated before redirecting to /profile route*/
+  function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
   }
-  
   res.redirect('/');
 };
 });
