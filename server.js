@@ -13,6 +13,8 @@ const mongoDb = require('mongodb');
 const mongo = mongoDb.MongoClient;// This connects to mongodb 
 const ObjectId = mongoDb.ObjectID;
 
+const bcrypt = require ('bcrypt');
+
 app.set('view engine', 'pug'); //Sets pug as template engine
 fccTesting(app); //For FCC testing purposes
 
@@ -56,16 +58,20 @@ mongo.connect(process.env.MONGO_URI, { useUnifiedTopology: true }, (err, client)
     //-----Here we manage the strategy of authentication---------------
 
     passport.use(new LocalStrategy(
-      function(username, password, done) {
-        db.collection('users').findOne({ username: username }, function (err, user) {
+  async function(username, password, done) {
+    try {
+   let user = db.collection('users').findOne({ username: username });
           console.log('User '+ username +' attempted to log in.');
-          if (err) { return done(err); }
-          if (!user) { return done(null, false); }
-          if (password !== user.password) { return done(null, false); }
-          return done(null, user);
-        });
-      }
-    ));
+          if (!user) { console.log('User non registered');return done(null, false); }
+         let passwordIsValid = bcrypt.compareSync(password, user.password);
+         if (!passwordIsValid) { console.log('Wrong Password'); return done(null, false);} //password wrong { return done(null, false); }
+          return done(null, user); } catch {
+            return done(err)
+          }
+     
+        })
+                 );
+    
 //---------------------o--------------------------
     
 /* Starting the routes */
@@ -81,12 +87,12 @@ app.route("/").get((req, res) => {
 app.route('/register').post(async (req,res)=>{
   try {
   let user = await db.collection('users').findOne({username: req.body.username});
-   
-    if (user) return res.redirect('/')
+   if (user) return res.redirect('/')
     //If user doesn't exist we create one
+    let hashedPwd = bcrypt.hashSync(req.body.password, 8); //crpyting pwd
     let userDb = await db.collection('users').insertOne({
           username: req.body.username,
-          password: req.body.password
+          password: hashedPwd
         });
     console.log(userDb)
     let autenthicate = await passport.authenticate('local', { failureRedirect: '/' });
