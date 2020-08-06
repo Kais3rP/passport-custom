@@ -76,14 +76,27 @@ app.route("/").get((req, res) => {  //rendering of templates
   res.render(process.cwd()+'/views/pug/index', {title: 'Hello', message: 'Please login', showLogin: true}); //process.cwd() returns the directory of the current node process
 });
 
-app.post('/login', passport.authenticate('local', { successRedirect: '/profile',
+app.route('/login').post(passport.authenticate('local', { successRedirect: '/profile',
                                    failureRedirect: '/' }), function(req,res){
   
+})
+  
+  app.route('/profile').get(ensureAuthenticated, function(req,res){
+    console.log(req.isAuthenticated())
+  res.render(process.cwd() + '/views/pug/profile');
 })
 app.listen(process.env.PORT || 3000, () => {
   console.log("Listening on port " + process.env.PORT);
 });
 
     
-      
+    /* This middleware ensures that the request is authenticated before redirecting to /profile route
+
+ */  function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  
+  res.redirect('/');
+};
 });
