@@ -30,7 +30,7 @@ app.use(session({
 }));
 
 //----- using Passport to manage logins credentials -----
-
+/* Initialize a session to store the passport credentials server side */
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -39,8 +39,9 @@ mongo.connect(process.env.MONGO_URI, { useUnifiedTopology: true }, (err, client)
   var db = client.db('users-db'); //In MongoDB 3+ you need to declare db like this
   if(err) throw ('Database error: ' + err);
   console.log('Successful database connection');
-
-   passport.serializeUser((user,done) => {
+  
+/* serialize and deserialize the user*/
+  passport.serializeUser((user,done) => {
   done(null, user._id);
 })
 passport.deserializeUser((id,done) => {
@@ -58,7 +59,6 @@ passport.deserializeUser((id,done) => {
       function(username, password, done) {
         db.collection('users').findOne({ username: username }, function (err, user) {
           console.log('User '+ username +' attempted to log in.');
-          console.log(user)
           if (err) { return done(err); }
           if (!user) { return done(null, false); }
           if (password !== user.password) { return done(null, "Password wrong"); }
@@ -68,21 +68,23 @@ passport.deserializeUser((id,done) => {
     ));
 //---------------------o--------------------------
     
+/* Starting the routes */
 
-
-
-app.route("/").get((req, res) => {  //rendering of templates
+//Main route
+app.route("/").get((req, res) => {  
+  //rendering of templates
   //Change the response to render the Pug template
   res.render(process.cwd()+'/views/pug/index', {title: 'Home Page', message: 'Please login', showLogin: true}); //process.cwd() returns the directory of the current node process
 });
 
+  //Login route when trying to login
 app.route('/login').post(passport.authenticate('local', { failureRedirect: '/' }), (req,res) =>{
   res.redirect("/profile");
 });
   
+  //Profile route when login succedeed
   app.route('/profile').get(ensureAuthenticated, (req,res) => {
-   
-  res.render(process.cwd() + '/views/pug/profile');
+   res.render(process.cwd() + '/views/pug/profile');
 });
   
 
