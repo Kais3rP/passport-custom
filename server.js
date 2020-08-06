@@ -41,7 +41,7 @@ mongo.connect(process.env.MONGO_URI, { useUnifiedTopology: true }, (err, client)
   if(err) throw ('Database error: ' + err);
   console.log('Successful database connection');
   
-/* serialize and deserialize the user*/
+/* serialize and deserialize the user are intialized so they are called during registration or login to write/read the id on client cookie req.user*/
   passport.serializeUser((user,done) => {
   done(null, user._id);
 })
