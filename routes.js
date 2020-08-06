@@ -45,5 +45,13 @@ app.route('/login').post(passport.authenticate('local', { failureRedirect: '/' }
   app.route('/logout').get((req,res)=>{
     req.logout(); //This method is directly managed by passport
     res.redirect('/');
-  })
+  });
+  
+  /* This middleware ensures that the request is authenticated before redirecting to /profile route*/
+  function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/');
+};
 }
