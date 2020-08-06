@@ -74,9 +74,19 @@ app.route("/").get((req, res) => {
   //Rendering of templates
   //Change the response to render the Pug template
   console.log(req.user)
-  res.render(process.cwd()+'/views/pug/index', {title: 'Home Page', message: 'Please login', showLogin: true}); //process.cwd() returns the directory of the current node process
+  res.render(process.cwd()+'/views/pug/index', {title: 'Home Page', message: 'Please login', showLogin: true, showRegistration: true}); //process.cwd() returns the directory of the current node process
 });
 
+app.route('/register').post(async (req,res)=>{
+  try {
+  let user = db.collection('users').findOne({username: req.body.username});
+    if (user) return res.redirect('/')
+  } catch {
+    console.log("Error retrieving user from the db")
+    return res.redirect('/')
+  }
+})
+  
   //Login route when trying to login
 app.route('/login').post(passport.authenticate('local', { failureRedirect: '/' }), (req,res) =>{
   res.redirect("/profile");
@@ -84,9 +94,13 @@ app.route('/login').post(passport.authenticate('local', { failureRedirect: '/' }
   
   //Profile route when login succedeed
   app.route('/profile').get(ensureAuthenticated, (req,res) => {
-   res.render(process.cwd() + '/views/pug/profile');
+   res.render(process.cwd() + '/views/pug/profile', { username: req.user.username });
 });
   
+  app.route('/logout').get((req,res)=>{
+    req.logout(); //This method is directly managed by passport
+    res.redirect('/');
+  })
 
 //Server listening
 app.listen(process.env.PORT || 3000, () => {
