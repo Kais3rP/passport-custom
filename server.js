@@ -73,18 +73,20 @@ passport.deserializeUser((id,done) => {
 
 app.route("/").get((req, res) => {  //rendering of templates
   //Change the response to render the Pug template
-  res.render(process.cwd()+'/views/pug/index', {title: 'Hello', message: 'Please login', showLogin: true}); //process.cwd() returns the directory of the current node process
+  res.render(process.cwd()+'/views/pug/index', {title: 'Home Page', message: 'Please login', showLogin: true}); //process.cwd() returns the directory of the current node process
 });
 
-app.route('/login').post(passport.authenticate('local', { successRedirect: '/profile',
-                                   failureRedirect: '/' }), function(req,res){
+app.route('/login').post(passport.authenticate('local', { failureRedirect: '/' }), (req,res) =>{
+  res.redirect("/profile");
+});
   
-})
-  
-  app.route('/profile').get(ensureAuthenticated, function(req,res){
-    console.log(req.isAuthenticated())
+  app.route('/profile').get(ensureAuthenticated, (req,res) => {
+   
   res.render(process.cwd() + '/views/pug/profile');
-})
+});
+  
+
+  
 app.listen(process.env.PORT || 3000, () => {
   console.log("Listening on port " + process.env.PORT);
 });
