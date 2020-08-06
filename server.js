@@ -79,10 +79,19 @@ app.route("/").get((req, res) => {
 
 app.route('/register').post(async (req,res)=>{
   try {
-  let user = db.collection('users').findOne({username: req.body.username});
+  let user = await db.collection('users').findOne({username: req.body.username});
+    console.log(user)
     if (user) return res.redirect('/')
+    //If user doesn't exist we create one
+    let userDb = await db.collection('users').insertOne({
+          username: req.body.username,
+          password: req.body.password
+        });
+    console.log(userDb)
+    let autenthicate = await passport.authenticate('local', { failureRedirect: '/' });
+    res.redirect('/profile')
   } catch {
-    console.log("Error retrieving user from the db")
+    console.log("Error retrieving/creating user from the db")
     return res.redirect('/')
   }
 })
