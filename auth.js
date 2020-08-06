@@ -3,10 +3,23 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const ObjectId = mongoDb.ObjectID;
 const bcrypt = require ('bcrypt');
-
+const session = require('express-session');
 
 
 module.exports = function (app, db) {
+  
+  //----- using the express-session() middleware to save on cookies the token of the visitor and verify it with the secret key on server, similar to JWT----
+//session() has to be used before passport.session() middleware to restore the correct login  order
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: true,
+  saveUninitialized: true,
+}));
+
+//----- using Passport to manage logins credentials -----
+/* Initialize a session to store the passport credentials server side */
+app.use(passport.initialize());
+app.use(passport.session());
 
   /* serialize and deserialize are intialized so they are called during registration or login to write/read the id on client cookie req.user*/
   passport.serializeUser((user,done) => {
